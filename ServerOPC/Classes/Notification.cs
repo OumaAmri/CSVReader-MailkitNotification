@@ -14,7 +14,35 @@ namespace ServerOPC.Classes
         private readonly string encryptedPwd = Password.DecryptString(password);
         public void SendMsg(string To,string Subject, string Body)
         {            
+            MimeMessage msg = new MimeMessage();
+            msg.From.Add(new MailboxAddress(Email, From));
+            msg.To.Add(MailboxAddress.Parse(To));
+            msg.Subject = Subject;
+            msg.Body = new TextPart("plain")
+            {
+                Text = Body
+            };
+            
+            SmtpClient client = new SmtpClient();                     
+            try
+            {
+                client.Connect("smtp.gmail.com", 465, true);
+                client.Authenticate(From, encryptedPwd);
+                
+                client.Send(msg);
+                Console.WriteLine("Email sent!");
+                client.Disconnect(true);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }          
 
+          
+        }
+
+        public void SendMsgNOKWithPingNOK(string To,string Subject, string Body)
+        {
             MimeMessage msg = new MimeMessage();
             msg.From.Add(new MailboxAddress(Email, From));
             msg.To.Add(MailboxAddress.Parse(To));
@@ -29,6 +57,7 @@ namespace ServerOPC.Classes
             {
                 client.Connect("smtp.gmail.com", 465, true);
                 client.Authenticate(From, encryptedPwd);
+
                 client.Send(msg);
                 Console.WriteLine("Email sent!");
                 client.Disconnect(true);
@@ -36,9 +65,7 @@ namespace ServerOPC.Classes
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-            }          
-
-          
+            }
         }
     }
 }
